@@ -11,5 +11,5 @@ output="/data/project_data/RS_ExomeSeq/mapping"
 # run mapping.sh
 
 #to do it in a way that allows these variables to get passed into the script that's being run use the command source, then the name of the file 
-source ./mapping.sh
+#source ./mapping.sh
 source ./process_bam.sh
