@@ -21,9 +21,6 @@
 * [Entry 6: 2020-01-20, Monday](#id-section6)
 * [Entry 7: 2020-01-21, Tuesday](#id-section7)
 * [Entry 8: 2020-01-22, Wednesday](#id-Command Line)
-# Introduction to connecting to the unix server and bash command line
-  * hopefully *this* is a bullet point
-      + and this one comes below it
 * [Entry 9: 2020-01-23, Thursday](#id-section9)
 * [Entry 10: 2020-01-24, Friday](#id-section10)
 * [Entry 11: 2020-01-27, Monday](#id-section11)
@@ -159,6 +156,35 @@
 <div id='id-section8'/>
 
 ### Entry 8: 2020-01-22, Wednesday.
+
+# Introduction to connecting to the unix server bash command line, and our data set
+
+## Using the Class Server
+  + we will use a server called pbio381 to store our very large data sets
+  + we can connect to it via Unix using a secure shell protocol while on campus
+  + to do this, I would type in git bash the following:
+    + ssh aehall@pbio381.uvm.edu
+      + doing this will promt us to enter our uvm net id and password
+
+## Basic Commands
+  +  `pwd` allows you to see the path to your current directory type
+    + you can use this to copy and paste your directory when you need it for
+  reference while coding
+  +  `cd` refers to changing directory use this command when you want
+   to change your working directory. You can use it to start typing a directory
+   you want to move into then press tab to complete.
+    + my folder that is connected to my github can be entered by typing this:
+      + `$ cd Documents/UVM/EcologicalGenomics/EcologicalGenomics`
+      + to back up to just the first EcologicalGenomics folder you can enter `cd .. `
+  + `ll` allows you to view contents of a folder
+  + `mkdir` creates a new folder
+    + to name this folder aehfiles I would type `mkdir aehfiles`
+    + if I did this while in the second EcologicalGenomics folder thats where
+    the folder called aehfiles would live
+
+
+## Red Spruce (*Picea rubens*)
+
 
 
 
