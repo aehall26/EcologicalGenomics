@@ -252,6 +252,46 @@
 <div id='id-section13'/>
 ### Entry 13: 2020-01-29, Wednesday.
 
+# Population Genomics Day 1
+
+## More about Red Spruce
+  + coniferous tree that plays a prominent role in montane communities throughout the Appalachians. Thrives in cool, moist climates of the high elevation mountains
+  +"island" populations exit on mountaintops are in low latitude trailing edge of the range spanning from Maryland to Tennessee
+  + these are remnant populations of spruce. The trees retreated to the mountain top refugia as the climate warmed.
+  + this caused them to be highly isolated from other stands
+  + out project aims to understand the genetic resource represented by these fragmented edge populations
+  + Main goals of this project in the Keller Lab
+    1. characterize genetic diversity and pop structuer across range
+    2. identify regions of the genome that show evidence of positive selection in response to climate gradients
+    3. map the genetic basis of climate adaptive phenotypes
+  + Using this information we can inform areas of the range that are most likely to experience climate maladaptation and help guide mitigation strategies
+  + This [link](https://pespenilab.github.io/Ecological-Genomics/2020-01-29_PopGenomics_Day1.html) to information provided about design from Steve's tutorial
+
+## Basic Coding Pipeline
+  1. Visualize using FastQC. This is a quality control tool for high throughput sequence data.
+  It is used on raw sequence data and provides a modular set of analyses that gives a quick impression on any large problems with your data. It can be used to uncover biases in data that can affect how you could use it.
+  Unlike the QC report provided by a sequencer, FastQC's report spots problems that originnate either in the sequencer or in the starting library material.
+  2. Clean the data with Trimmomatic. Trimmomatic performs trimming for the illumina specific sequences, and uses a sliding window approach ot trimp. It travels along the tread and cuts where quality falls below a certain specified treshold. It will cut the reads to a specific length and works with FastQC
+  3. After this you'll visualize again with FastQC
+  4. Then calculate the numbers of cleaned, high quality reads that go into mapping
+  5. Align these cleaned reads from each sample to the reference assembly to generate sequence alignment filesusing bwa. Files go in as .fastqc and out as .sam
+  6. Remove PCR duplicates and calculate alignment statistics(% reads mapped successfully, mapping quality scores, and average depth of coverage per individual)
+
+### New code learned today:
+  + `zcat` like `head` for compressed files. FastQC files are big, so big that they must be compressed we can't use `head` on a compressed file.
+  to peek inside a compressed file while keeping it compressed use the `zcat`
+    + example of how I used this:
+      + data are located here: `cd /data/project_data/RS_ExomeSeq/fastq/edge_fastq`
+      + `zcat XWS_05_R1_fastq.gz | head -n 4` to see the first 4 lines of my files
+  + 
+
+
+*Note: I used the population XWS for my analysis*
+
+
+
+
+
 
 
 ------
