@@ -363,7 +363,7 @@ Below is my code that I used to process all the files belonging to XWS populatio
           MINLEN:35
 
   done
-```
+  ```
 
 
 + these are the areas that trimmomatic trims
