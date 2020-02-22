@@ -365,22 +365,16 @@ Below is my code that I used to process all the files belonging to XWS populatio
   done
 ```
 
-+ these are the areas that trimmomatic trims:
-  ```
+
++ these are the areas that trimmomatic trims
+
+```
 ILLUMINACLIP: Cut adapter and other illumina-specific sequences from the read.
 LEADING: Cut bases off the start of a read, if below a threshold quality
 TRAILING: Cut bases off the end of a read, if below a threshold quality
 SLIDINGWINDOW: Perform a sliding window trimming, cutting once the average quality within the window falls below a threshold.
 MINLEN: Drop the read if it is below a specified length
 ```
-
-
-The rest of the info from today is on the course's Day One tutorial page linked above
-
-
-
-
-
 
 
 
