@@ -252,8 +252,7 @@
 <div id='id-section13'/>
 ### Entry 13: 2020-01-29, Wednesday.
 
-# Population Genomics Day 1
-This [link](https://pespenilab.github.io/Ecological-Genomics/2020-01-29_PopGenomics_Day1.html) to information from Steve's tutorial
+# [Population Genomics Day 1](https://pespenilab.github.io/Ecological-Genomics/2020-01-29_PopGenomics_Day1.html)
 
 
 ## More about Red Spruce
@@ -444,9 +443,9 @@ Here's the code I used:
 ```
 #!/bin/bash
 
-# this sceipt calls the R1 and R2 reads for each individual in the population
+# this script calls the R1 and R2 reads for each individual in the population
 # bwa maps reads to the reference genome
-# options are preceeded by a - (see tutorial for specific description of the code)
+# options are preceded by a - (see tutorial for specific description of the code)
 ref="/data/project_data/RS_ExomeSeq/ReferenceGenomes/Pabies1.0-genome_reduced.fa"
 # Write a loop to map each individual within my population
 for forward in ${input}*_R1.cl.pd.fq
