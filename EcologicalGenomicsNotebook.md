@@ -366,7 +366,7 @@ Below is my code that I used to process all the files belonging to XWS populatio
   done
 ```
 
-  + these are the areas that trimmomatic trims:
++ these are the areas that trimmomatic trims:
   ```
 ILLUMINACLIP: Cut adapter and other illumina-specific sequences from the read.
 LEADING: Cut bases off the start of a read, if below a threshold quality
