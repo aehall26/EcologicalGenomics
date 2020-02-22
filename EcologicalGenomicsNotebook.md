@@ -368,13 +368,13 @@ Below is my code that I used to process all the files belonging to XWS populatio
 
 + these are the areas that trimmomatic trims
 
-```
-ILLUMINACLIP: Cut adapter and other illumina-specific sequences from the read.
-LEADING: Cut bases off the start of a read, if below a threshold quality
-TRAILING: Cut bases off the end of a read, if below a threshold quality
-SLIDINGWINDOW: Perform a sliding window trimming, cutting once the average quality within the window falls below a threshold.
-MINLEN: Drop the read if it is below a specified length
-```
+  ```
+  ILLUMINACLIP: Cut adapter and other illumina-specific sequences from the read.
+  LEADING: Cut bases off the start of a read, if below a threshold quality
+  TRAILING: Cut bases off the end of a read, if below a threshold quality
+  SLIDINGWINDOW: Perform a sliding window trimming, cutting once the average quality within the window falls below a threshold.
+  MINLEN: Drop the read if it is below a specified length
+  ```
 
 
 
@@ -496,7 +496,8 @@ done
  	samtools index ${file}
  done
  ```
- ## bamstats.sh
+
+## bamstats.sh
  + works similarly to the other script but now it runs after the PCR duplicates were removed.
 
  ```
@@ -531,7 +532,7 @@ done
  	done >> ${myrepo}/myresults/${mypop}.coverage.txt
  ```
 
- ## Wrap these scripts into a pipeline
+## Wrap these scripts into a pipeline
  + this will run the scripts we just created
  + Q: why is bamstats left out?
 
