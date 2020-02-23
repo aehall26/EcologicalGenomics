@@ -280,6 +280,7 @@
   5. Align these cleaned reads from each sample to the reference assembly to generate sequence alignment file using bwa. Files go in as .fastqc and out as .sam.
     +alignment post processing: we use samtools, sambamba whcih converts alignment into binary form (.bam)
   6. Remove PCR duplicates and calculate alignment statistics (% reads mapped successfully, mapping quality scores, and average depth of coverage per individual)
+  
 *Note: I used the population XWS for my analysis*
 ### New code learned today:
 + `chmod u+x file.sh` gives user permission to make script executable.
