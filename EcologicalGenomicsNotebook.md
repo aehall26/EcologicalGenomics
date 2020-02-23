@@ -30,7 +30,7 @@
 * [Entry 15: 2020-01-31, Friday](#id-section15)
 * [Entry 16: 2020-02-03, Monday](#id-section16)
 * [Entry 17: 2020-02-04, Tuesday](#id-section17)
-* [Entry 18: 2020-02-05, Wednesday](#Population_Genetics_Day2)
+* [Entry 18: 2020-02-05, Wednesday](#Population Genetics Day2)
 * [Entry 19: 2020-02-06, Thursday](#id-section19)
 * [Entry 20: 2020-02-07, Friday](#id-section20)
 * [Entry 21: 2020-02-10, Monday](#id-section21)
@@ -280,7 +280,7 @@
   5. Align these cleaned reads from each sample to the reference assembly to generate sequence alignment file using bwa. Files go in as .fastqc and out as .sam.
     +alignment post processing: we use samtools, sambamba whcih converts alignment into binary form (.bam)
   6. Remove PCR duplicates and calculate alignment statistics (% reads mapped successfully, mapping quality scores, and average depth of coverage per individual)
-  
+
 *Note: I used the population XWS for my analysis*
 ### New code learned today:
 + `chmod u+x file.sh` gives user permission to make script executable.
@@ -403,7 +403,7 @@ Below is my code that I used to process all the files belonging to XWS populatio
 
 
 ------
-<div id='id-section18'/>
+<div id='Population Genetics Day2'/>
 ### Entry 18: 2020-02-05, Wednesday.
 
 # [Population Genetics Day 2](https://pespenilab.github.io/Ecological-Genomics/2020-02-05_PopGenomics_Day2.html)
