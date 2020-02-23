@@ -590,6 +590,177 @@ done
 <div id='id-section23'/>
 ### Entry 23: 2020-02-12, Wednesday.
 
+# [Population Genomics Day 3](https://pespenilab.github.io/Ecological-Genomics/2020-02-12_PopGenomics_Day3.html)
+
+## Look at sam files
++ `tail -n 100 XWS_05.sam`
++ this is a text file tjat has infomation about the alignment of reads in a FastQC file to a reference genome.
++ One SAM file exists for each FastQC file
+  + there are two numbers: one of the left is a contig, the number of the right is the length
+  + there is a row of data and one of the potential reads is mapped somewhere on the genome
+  + not everything is mapped (as expected)
++ GWNJ- name of file
++ after that comes a number that gives information on how a read behaves that can be decoded
+  + there's a decoder for this info linked in the tutorial
+  + my flag is 163 which using the decoder I see that means that
++ then comes the contig that that specific read mapped to
++ then comes the leftmost read
++ then a quality score base
+
+## Stats on sam Files
++ to get a summary of how well our reads mapped to the reference we use the program SAMTools
++ `samtools flagstat XWS_05.sam`
+
+## bam_stats.sh
++ this code uses the program samtools' flagstat command to get read counts after mapping and the depth command to get the depth of coverage meaning how many reads cover each mapped position (on average)
++ the code I used to do this is below
+
+```
+#!/bin/bash
+#set repo
+myrepo="/users/a/e/aehall/EcologicalGenomics"
+mypop="XWS"
+output="/data/project_data/RS_ExomeSeq/mapping"
+echo "Num.reads R1 R2 Paired MateMapped Singletons MateMappedDiffChr" >${myrepo}/myresults/${mypop}.flagstats.txt
+#name of the file mypopflagstats.txt lives in the myresults folder in my repo
+for file in ${output}/BWA/${mypop}*sorted.rmdup.bam
+	do
+		f=${file/.sorted.rmdup.bam/}
+		name=`basename ${f}` #base name is a function and helps us rename these files
+		echo ${name} >> ${myrepo}/myresults/${mypop}.names.txt #store individual sample names
+		#double arrow allows us to keep growing a single carrot would make it write it over and over again
+		samtools flagstat ${file} | awk 'NR>=6&&NR<=12 {print $1}' | column -x
+	done >>${myrepo}/myresults/${mypop}.flagstats.txt
+		#pipe means take these results and pass through to next command.
+		#awk strips just the rows of data we care about.
+		#NR is number of rows greater than or equal to six and less than or equal to 12
+# calculate depth of coverage from our bam files
+for file in ${output}/BWA/${mypop}*sorted.rmdup.bam
+  do
+		samtools depth ${file} | awk '{sum+=3} END {print sum/NR}'
+		#take a rolling sum of the number in the third column
+	done >> ${myrepo}/myresults/${mypop}.coverage.txt
+```		 
+## ANGSD- Analysis of Next Generation Sequence Data
++ we should not assume that what we are observing is the true geneotype, there is some degree of uncertainty with this.
++ read data are counts that produce a multinomial distribution of alleles at a site. With only a few reads, you can't determine the geneotype confidently
+  + geneotype likelihood is the probability of observing the sequence data (reads that contain a particular base) given the geneotype at that site
+  + diversity statistics model this probability
++ ANGSD allows us to incorporate uncertainty into our analysis
++ code for my ANGSD and calculating the SFS
+  + see Steve's tutorial for better detail on the code explanation  
+
+```
+myrepo="/users/a/e/aehall/EcologicalGenomics"
+
+
+mkdir ${myrepo}/myresults/ANGSD
+
+output="${myrepo}/myresults/ANGSD"
+
+mypop="XWS"
+
+ls /data/project_data/RS_ExomeSeq/mapping/BWA/${mypop}*sorted.rm*.bam >${output}/${mypop}_bam.list
+
+REF="/data/project_data/RS_ExomeSeq/ReferenceGenomes/Pabies1.0-genome_reduced.fa"
+
+# Estimating GL's and allele frequencies for all sites with ANGSD
+
+ANGSD -b ${output}/${mypop}_bam.list \
+-ref ${REF} -anc ${REF} \
+-out ${output}/${mypop}_allsites \
+-nThreads 1 \
+-remove_bads 1 \
+-C 50 \
+-baq 1 \
+-minMapQ 20 \
+-minQ 20 \
+-setMinDepth 3 \
+-minInd 2 \
+-setMinDepthInd 1 \
+-setMaxDepthInd 17 \ #could me PCR duplicates
+-skipTriallelic 1 \ #probably an error because youre unlikely to see more mutations at one location
+-GL 1 \ #geneotype likelihoods
+-doCounts 1 \ #generate counts at each site
+-doMajorMinor 1 \ #majorminor status equivalent across all sites. major is often ancestral allele. minor alleles are rare and often derived
+-doMaf 1 \ #major minor frequencies
+-doSaf 1 \
+-doHWE 1 \ #test for HW equilibrium to see that anything is majorly outside
+# -SNP_pval 1e-6
+
+myrepo="/users/a/e/aehall/EcologicalGenomics"
+
+
+mkdir ${myrepo}/myresults/ANGSD
+
+output="${myrepo}/myresults/ANGSD"
+
+mypop="XWS"
+
+ls /data/project_data/RS_ExomeSeq/mapping/BWA/${mypop}*sorted.rm*.bam >${output}/${mypop}_bam.list
+
+REF="/data/project_data/RS_ExomeSeq/ReferenceGenomes/Pabies1.0-genome_reduced.fa"
+
+# Estimating GL's and allele frequencies for all sites with ANGSD
+
+ANGSD -b ${output}/${mypop}_bam.list \
+-ref ${REF} -anc ${REF} \
+-out ${output}/${mypop}_folded_allsites \
+-nThreads 1 \
+-remove_bads 1 \
+-C 50 \
+-baq 1 \
+-minMapQ 20 \
+-minQ 20 \
+-setMinDepth 3 \
+-minInd 2 \
+-setMinDepthInd 1 \
+-setMaxDepthInd 17 \
+-skipTriallelic 1 \
+-GL 1 \
+-doCounts 1 \
+-doMajorMinor 1 \
+-doMaf 1 \
+-doSaf 1 \
+-fold 1
+
+#Get a rough first estimate of the SFS and then use as a prior for the next estimate
+realSFS ${output}/${mypop}_folded_allsites.saf.idx \
+-maxIter 1000 -tole 1e-6 -P 1 \
+> ${output}/${mypop}_outFold.sfs
+
+# Get refined estimate of the SFS and do theta
+ANGSD -b ${output}/${mypop}_bam.list \
+-ref ${REF} -anc ${REF} \
+-out ${output}/${mypop}_folded_allsites \
+-nThreads 1 \
+-remove_bads 1 \
+-C 50 \
+-baq 1 \
+-minMapQ 20 \
+-minQ 20 \
+-setMinDepth 3 \
+-minInd 2 \
+-setMinDepthInd 1 \
+-setMaxDepthInd 17 \
+-skipTriallelic 1 \
+-GL 1 \
+-doCounts 1 \
+-doMajorMinor 1 \
+-doMaf 1 \
+-doSaf 1 \
+-fold 1 \
+-pest ${output}/${mypop}_outFold.sfs \
+-doThetas 1
+
+#Use the doTheta output from above to estimate neucleotide diversity
+thetaStat do_stat ${output}/${mypop}_folded_allsites.thetas.idx
+```
+## Use R to look at the mean variability in nucleotide diversity in the population XWS
+
+
+
+
 
 
 ------
@@ -649,6 +820,20 @@ done
 ------
 <div id='id-section33'/>
 ### Entry 33: 2020-02-26, Wednesday.
+
+# [Population Genomics Day 4](https://pespenilab.github.io/Ecological-Genomics/2020-02-12_PopGenomics_Day4%20(1).html)
+
+## Unfolded vs. Folded sfs
++ We noticed a pattern in the site frequency histogram where there were a lot of SNPs with high frequency.
+  + we observed a quadratic curve instead of a asymtotic curve
+  + This could be due to assuming that the reference genome was ancestral to the sampled genomes, when in reality it could have represented another variant not ancestral
+  + When you can't be confident about the ancestry, you can fold!
+  + when you can't be confident about the derived allele frequnecy, consider the minor allele frequency rather than the derived
+    + no minor alleles means that the major allele is fixed. This is an alternative to ancestral
+  + The folded spectra wraps the SFS around such that high frequency "derived" alleles are put into small bins (low minor allele frequency)
+  
+
+
 
 
 
