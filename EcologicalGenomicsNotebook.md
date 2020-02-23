@@ -30,7 +30,7 @@
 * [Entry 15: 2020-01-31, Friday](#id-section15)
 * [Entry 16: 2020-02-03, Monday](#id-section16)
 * [Entry 17: 2020-02-04, Tuesday](#id-section17)
-* [Entry 18: 2020-02-05, Wednesday](#id-section18)
+* [Entry 18: 2020-02-05, Wednesday](#Population_Genetics_Day2)
 * [Entry 19: 2020-02-06, Thursday](#id-section19)
 * [Entry 20: 2020-02-07, Friday](#id-section20)
 * [Entry 21: 2020-02-10, Monday](#id-section21)
@@ -831,7 +831,7 @@ thetaStat do_stat ${output}/${mypop}_folded_allsites.thetas.idx
   + when you can't be confident about the derived allele frequnecy, consider the minor allele frequency rather than the derived
     + no minor alleles means that the major allele is fixed. This is an alternative to ancestral
   + The folded spectra wraps the SFS around such that high frequency "derived" alleles are put into small bins (low minor allele frequency)
-  
+
 
 
 
