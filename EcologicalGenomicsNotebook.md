@@ -25,7 +25,7 @@
 * [Entry 10: 2020-01-24, Friday](#id-section10)
 * [Entry 11: 2020-01-27, Monday](#id-section11)
 * [Entry 12: 2020-01-28, Tuesday](#id-section12)
-* [Entry 13: 2020-01-29, Wednesday](#Population Genetics Day One)
+* [Entry 13: 2020-01-29, Wednesday Population Genomics Day 1](#id-section13)
 * [Entry 14: 2020-01-30, Thursday](#id-section14)
 * [Entry 15: 2020-01-31, Friday](#id-section15)
 * [Entry 16: 2020-02-03, Monday](#id-section16)
