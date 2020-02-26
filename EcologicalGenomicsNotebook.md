@@ -791,6 +791,17 @@ thetaStat do_stat ${output}/${mypop}_folded_allsites.thetas.idx
 ------
 <div id='id-section28'/>
 ### Entry 28: 2020-02-19, Wednesday.
+# [Population Genomics Day 4](https://pespenilab.github.io/Ecological-Genomics/2020-02-12_PopGenomics_Day4%20(1).html)
+
+## Unfolded vs. Folded sfs
++ We noticed a pattern in the site frequency histogram where there were a lot of SNPs with high frequency.
+  + we observed a quadratic curve instead of a asymtotic curve
+  + This could be due to assuming that the reference genome was ancestral to the sampled genomes, when in reality it could have represented another variant not ancestral
+  + When you can't be confident about the ancestry, you can fold!
+  + when you can't be confident about the derived allele frequnecy, consider the minor allele frequency rather than the derived
+    + no minor alleles means that the major allele is fixed. This is an alternative to ancestral
+  + The folded spectra wraps the SFS around such that high frequency "derived" alleles are put into small bins (low minor allele frequency)
+
 
 
 
@@ -822,16 +833,125 @@ thetaStat do_stat ${output}/${mypop}_folded_allsites.thetas.idx
 <div id='id-section33'/>
 ### Entry 33: 2020-02-26, Wednesday.
 
-# [Population Genomics Day 4](https://pespenilab.github.io/Ecological-Genomics/2020-02-12_PopGenomics_Day4%20(1).html)
+# [Transcriptomics Day 1](https://pespenilab.github.io/Ecological-Genomics/2020-02-26_RNA-seq_Day1.html)
+## Red Spruce data continued!
++ same species, different extraction/experiment
++ sometimes spruce is in warmer drier areas based on microclimate differences
++ This experiment samples genetic variation from sites that were polarized into cool & wet vs. hot & dry based on historic climate Data
++ assess gene expression
++ 5 families from hot and dry
++ 5 families from cool and wet
++ Treatments
+  + control- watered daily
+  + heat
+  + heat and drought
++ Extracted RNA from whole seedlings.
+  + anything strong will be seen anything tissue specific will be lost
+  + collapse tissue variation
++ Nreps- no replicates from within a family
+    + 5 families from each source climate regime
++ moms with cones on them were collected from nature and brought home and raised in a common garden experiment
+  + if all the seeds came with things that are different to the site (eg: soil microbes, fungi etc) than we might have to sterilize them, which the student doing this did
 
-## Unfolded vs. Folded sfs
-+ We noticed a pattern in the site frequency histogram where there were a lot of SNPs with high frequency.
-  + we observed a quadratic curve instead of a asymtotic curve
-  + This could be due to assuming that the reference genome was ancestral to the sampled genomes, when in reality it could have represented another variant not ancestral
-  + When you can't be confident about the ancestry, you can fold!
-  + when you can't be confident about the derived allele frequnecy, consider the minor allele frequency rather than the derived
-    + no minor alleles means that the major allele is fixed. This is an alternative to ancestral
-  + The folded spectra wraps the SFS around such that high frequency "derived" alleles are put into small bins (low minor allele frequency)
+
+
+## Library Prep
++ you don't need much sample for RNA seq
++ samples were sent to Cornell for 3' tag sequencing
++ samples were demultiplexed (sorted back to their population/organized) and named according to the convention: POP_FAM_TRT_DAY
+  + TRT- treatment (control, heat, heat and drought)
+  + good to keep these at two letters or numbers
+
+## What questions can we ask with these experimental designs with these data
++ *What are our factors to consider in building these questions:*
+  + Treatment- control, heat, heat drought
+  + Source Climate- HotDry, CoolWet
+  + Time- 0, 5, 10 (days on which they were sampled)
++ *Do individuals from different Climate Sources have different gene expression
+considering:*
+  1. each condition (expression climate source as main effect and treatment)
+    + does response to treatment condition depend on source climate (everytime you say "depend on" it's an interaction)
+  2. time points (interaction between source climate and time)
+  3. masking any differences between source and climate, we could compare treatment and time
+  4. Which specific genes are involed in these reponses, do they reveal function enrichment of particular pathways?
+  5. Do differentially expressed genes or pathways show evidence of positive selection (compare DE genes with popgen signitures of selection)
+  6. Can we use association mapping to identify eQTL associated with DE responses?
+
+## Pipeline
++ Trimmomatic is done!
+  + cut off first 12 bases across all reads (hexomers)
++ We're using the white spruce as a reference transcriptome
++ Do fastqc on raw and cleaned reads
++ Mapping process
+  + Map reads while simultaneously quantifying abundance using Salmon
+  + Salmon makes a quantSF file (one for everyone in your data set)
+  + import these into R package called DESeq2 for analysis and visualization
+    + also use DESeq2 to do statistical tests for differential gene expression
++ I am going to be working with BRU D and H
+
+## fastqc
++ edit using vim
++ copy the fashtq.sh script and rename it BRU.sh to edit it for this purpose
++ `cp fastqc.sh BRU.sh `
++ edit it to include my population name
+
+``````
+#!/bin/bash
+
+#this directory is using bash code
+
+cd ~/EcologicalGenomics/myresults/
+
+mkdir transfastqc #I am creating a new directory
+
+for file in data /data/project_data/RS_RNASeq/fastq/BRU*H*fastq.gz
+
+do
+
+fastqc ${file} -o transfastqc/
+
+#the lower case o means dont spit it to this directory put it in the folder i tell you to be in. only need to give the portion of the path that is beyond where you are.
+
+done
+``````
+
++ Then do this again on your cleaned reads
+  + `/data/project_data/RS_RNASeq/fastq/cleanreads/BRU*H*cl.fq`
+  + `cp BRU.sh cleanBRU.sh`
+  + then `vim cleanBRU.sh `
+  + then I edited this to look like this
+
+ ``````
+  #!/bin/bash
+
+  #this directory is using bash code
+
+  cd ~/EcologicalGenomics/myresults/
+
+  mkdir cleanedtransfastqc #I am creating a new directory to store these cleaned reads files
+
+  for file in data /data/project_data/RS_RNASeq/fastq/cleanreads/BRU*H*.cl.fq
+
+  do
+
+  fastqc ${file} -o cleanedtransfastqc/
+
+  #the lower case o means dont spit it to this directory put it in the folder i tell you to be in. only need to give the portion of the path that is beyond where you are.
+
+  done
+``````
++ comparing the cleaned vs uncleaned
+  + GS drops
+  + number of bases drop
+  + Per seq GC content- you can see a strong signature of first 12 bases
+    + this is cone after cutting
+  + Per sequence GC content 
+
+
+
+
+
+
 
 
 
