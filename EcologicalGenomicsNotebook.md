@@ -945,7 +945,7 @@ done
   + number of bases drop
   + Per seq GC content- you can see a strong signature of first 12 bases
     + this is cone after cutting
-  + Per sequence GC content 
+  + Per sequence GC content
 
 
 
@@ -973,6 +973,123 @@ done
 ------
 <div id='id-section36'/>
 ### Entry 36: 2020-03-02, Monday.
+
+# Differential Gene Expression
+### What is it?
++ looking at difference in transcript abundance between experimental groups
+  + which genes are changing, are any pathways enriched, why are they changing
+  + if were primariliy interested in how geneotypes are related to phenotypes, we can run experiments that manipulated whether phenotypes are a product of geneotype and environment, we can control the environment and get at the geneotype
+  #### How did we get here?
+  + sample Prep
+    + collect samples
+    + RNA extraction
+    + library Prep
+    + sequencing
+    + quality control -> FastQC, trimming, visualize again
+    + map genes onto the genomes
+    + Counting- how does the transcriptome look- what maps
+
+### Normalization
++ data matrix/genecount table
+| sample1  |  sample2 |  sample3 |   |   |
+|---|---|---|---|---|
+| 120  | 60  |  22 |   |   |
+|  50 |  25 |  9 |
+|  75 |  37 | 14
+0  | 0  |  200
+
+    + gene 4 is highly expressed only in sample3
+    + the above example, each row is a gene
+#### Normalization methods
+  + Counts per million (CPM) - depth
+  + transcripts per kilobase million
+  + fragments per kilobase million
+    + second two both account for depth and gene length
+    + if you want to make a comparision between two genes within a sample, you would want to account for gene length
+  + edge R- accounts for depth, gene size, and library composition
+  + DESeq2 - accounts for dept composition
+      + log transformed values
+      + get a gene wide average
+      + youll end up knowing the genes that aren't really changing
+      + somehow you get a scaling factor- (log transformed values, take a rowise average. then take a ratio of these values, then a median of the ratios)
+        + for the example above these are 2.23, 1.11, and 0.41
+        + divide the values in the table by the scaling factor
+        + this allows for a more realistic view of expression
+
+### Differential Expression
++ 20,000 * 5% = 1,000 false positive
++ false negative- two normal distributions that aren't really overlapping  
+    + you happen to pick some within this small overlap and call them non differentially expressed genes
++ Independent Filtering
+    + limiting the number of tests based on a cutoff
+        + base mean
+        + DESeq2 tosses an NA in the even that something is filtered out
+    + Benjamin Hochberg (BH)
+      + adjusted pvalue
+        + control false positives
+        + FDR- false discovery rate
+
+### Statistical Models
++ how well do these variables predict expression levels
++ if they do predict them, we will see a low pvalue
+
+### Visualization
++ look at quality control metrics
++ sequencinging summary statistics
+  + make barplots that are informative of a total read counts (per sample)
+  + can also visualize null read counts (eg 0s in the above chart, but one sample was super high)
+  + or visualize seqencing after normalization and hopefully the medians are in roughly the sample spot (in a boxplot)
++ PCA hopefully you observe good clustering of experimental groups
+  + instead of tight groups, you might have two groups similarly
++ heat maps
+  + each gene corresponds to a row
+  + colored based on log fold change how much theyre changing relative to each other
+  + sometimes this will be combined with hierarchical clustering
+    + this will group samples that are behaving similarly to each other based on how much the genes are changing
++ ven diagrams
+  + can split with upregulated or down regulated genes
++ MA plot
+  + log of mean expression on the x axis
+  + log of relative fold change on the y axis
+    + some people also use a fold change cut off
+      + this would be pictured on the MA plot
++ Volcano plot
+  + log pvalue on y axis
+  + log fold change on x axis
++ log fold change scattered plot
+  + LFC of condition 2 vs control
+  + LVF condition 1 vs control
+    + shared things along the line and then unique things are in the quandrants and line
++ individual gene treatment response curve (thomas made this nanme up)
+  + y axis relative fold change (or log fold change)
+  + treatments on x axis
+
+### Enrichment Analysis
++ look at gene sets and compare your differentially expressed genes to these gene sets
++ functional data bases
+  + gene ontology (GO) is common
+    + has subcategories: molecular function (eg: atc cyclase activity), biological process (eg pyridimine biosynthesis), or cellular compartement (where in the cell, what molecular macro molecule is involved, eg: ribosome)
+  + KEGG pathway
+    +genetic information processing
+      + transcription
+        + splicesomal process
++ methods:
+  + over representation analysis
+    + looking to see if gene set is more than by random chance represented in differentially expressed groups
+      + based on the difference in representation between one gene set compared to all the differentially expressed genes
+    + requires a cut off
+  + Gene set enrichment analysis
+    + rank based method
+    + usually log fold change
+    + are genes within the set clustered towards one end of the ranked list
+    + if you had a bunch of genes in a set and they were all ranked high, they would be considered enriched
+    + doesnt require a cut off so you are able to retain more data  
+
+
+
+
+
+
 
 
 
