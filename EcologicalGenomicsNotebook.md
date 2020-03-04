@@ -974,7 +974,7 @@ done
 <div id='id-section36'/>
 ### Entry 36: 2020-03-02, Monday.
 
-# Differential Gene Expression
+# [Differential Gene Expression](https://tsoleary.github.io/eco_genomics/deg_info_update.html)
 ### What is it?
 + looking at difference in transcript abundance between experimental groups
   + which genes are changing, are any pathways enriched, why are they changing
@@ -1103,7 +1103,116 @@ done
 <div id='id-section38'/>
 ### Entry 38: 2020-03-04, Wednesday.
 
+# [Transcriptomics Day 2](https://pespenilab.github.io/Ecological-Genomics/2020-03-044_RNA-seq_Day2.html)
 
+## Quantifying and mapping our reads using Salmon
+
+`salmon quant -i <your index here> -l A -r reads.fq --validateMappings -o transcripts_quant`
+
++ ## Write a script to map our single read samples
+  + I did this by copying the cleanBRU.sh file and renaming it salmon, then editing it
+
+```
+#!/bin/bash
+
+#this directory is using bash code
+
+cd /data/project_data/RS_RNASeq/fastq/cleanreads
+
+
+for file in BRU*H*.cl.fq
+
+do
+
+        echo "starting sample ${file}"
+        salmon quant -i /data/project_data/RS_RNASeq/ReferenceTranscriptome/Pabies_HC27_index -l A -r ${file} --validateMappings -o /data/project_data/RS_RNASeq/salmon/cleanedreads/${file}
+
+# all of our data are going to the same folder
+
+done
+
+
+```
+  + reviewing challenges:
+  + we cd to the directory where we knew the files were
+  + the echo just means that it is telling you when it is starting a file
+
++ ## Check mapping rate
+  + we mapped to a high quality reference genome, lowered kmer parameter to allow for mapping smaller fragments
+  + cd `cd /data/project_data/RS_RNASeq/salmon/cleanedreads`
+  + `grep -r --include \*.log -e 'Mapping rate'`
+  + this command shows the percent reads in each file that mapped to the reference transcriptome with high confidence
+    + high confidence is based on homology (~70%) from BLAST between red and norway spruce
+      + if they're conifer specific genes they wont be in high confidence because they might not map to any more distantly related (non conifer, other plant)
+    + our mapping rate isn't very good (~20%)
+      + there are multiple reasons that this could be wrong
+        + we could remap to another kmer
+  + To get the higher mapping rate we changed the script:
+
+```
+#!/bin/bash
+
+#this directory is using bash code
+
+cd /data/project_data/RS_RNASeq/fastq/cleanreads/
+
+
+for file in BRU*H*.cl.fq
+
+do
+
+        echo "starting sample ${file}"
+        salmon quant -i /data/project_data/RS_RNASeq/ReferenceTranscriptome/Pabies_cds_index -l A -r ${file} --validateMappings --seqBias -o /data/project_data/RS_RNASeq/salmon/allmapping/${file}
+
+# all of our data are going to the same folder
+
+done
+```
+  + in this script we use all the references not just the high quality maps
+  + this script uses a different kmer flag
+  + this allows there to be a slightly worse map between the reference and the read
+  + now these data are located here `cd /data/project_data/RS_RNASeq/salmon/allmapping/`
+    + ll shows all the Files
+    + I copied one of mine and entered it: `cd BRU_05_H_10_TTCCGC_R1.cl.fq`
+    + then did `head.quant.sf`
+      + this shows the first 10 lines of the file
+    + I also did `grep -r --include \*.log -e 'Mapping rate'`
+      + mapping rate for that specific file is ~39% which is much higher!
+
+In R:
+```
+library(tximportData)
+library(tximport)
+
+#locate the directory containing the files.
+dir <- "/data/project_data/RS_RNASeq/salmon/"
+list.files(dir) # lists our files and shows that we're in the right place
+
+# read in table with sample ids
+# lines up sample names with quantsf files in their respective directories
+samples <- read.table("/data/project_data/RS_RNASeq/salmon/RS_samples.txt", header=TRUE)
+
+# now point to quant files
+# the all files function uses column sample in the file called samples
+# finds the quant sf file in the Directory
+all_files <- file.path(dir, samples$sample, "quant.sf")
+names(all_files) <- samples$sample
+
+# what would be used if linked transcripts to genes
+#txi <- tximport(files, type = "salmon", tx2gene = tx2gene)
+# to be able to run without tx2gene
+txi <- tximport(all_files, type = "salmon", txOut=TRUE)
+# the above import using tximport. this has an option to collapse transcripts into genes. If you have splice variants this just counts reads that mapped to genes. But ours were already all genes (so txOut=TRUE)!
+names(txi)
+
+head(txi$counts)
+
+countsMatrix <- txi$counts
+dim(countsMatrix)
+#[1] 66069    76
+
+# To write out
+write.table(countsMatrix, file = "RS_countsMatrix.txt", col.names = T, row.names = T, quote = F)
 
 ------
 <div id='id-section39'/>
