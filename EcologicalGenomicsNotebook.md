@@ -176,14 +176,14 @@
   + `head n- # filename` will show you the first # lines of Data
   + `tail -n #filename` shows the # last lines of Data
   + `mv document.txt AlisonWork/Example` would move a document called document
-  into the folder Example which lives in the folder AlisonWork
+    into the folder Example which lives in the folder AlisonWork
   + `rm document.txt` removes that file
 
 ## Red Spruce Data Set (*Picea rubens*)
   + the data set is part of an NSF project on population genomics of climate adaptation
   + over the course of the semester we will analyze exome-capture illumina data
   + data were collected by the Keller Lab from across the Appalachian Mountains
-  ranging from Tennessee, USA to New Brunswick, CA.
+    ranging from Tennessee, USA to New Brunswick, CA.
   + Region- refers to the geographical and genetic cluster each ind. belongs to
     + Core(C), Margin (M), or Edge(E)
     + we will just focus on the *Edge*
@@ -271,13 +271,15 @@
 
 ## Basic Coding Pipeline
   1. Visualize using FastQC. This is a quality control tool for high throughput sequence data.
-  It is used on raw sequence data and provides a modular set of analyses that gives a quick impression on any large problems with your data. It can be used to uncover biases in data that can affect how you could use it.
-  Unlike the QC report provided by a sequencer, FastQC's report spots problems that originate either in the sequencer or in the starting library material.
+    It is used on raw sequence data and provides a modular set of analyses that gives a quick impression on any large problems with your data. It can be used to uncover biases in data that can affect how you could use it.
+    Unlike the QC report provided by a sequencer, FastQC's report spots problems that originate either in the sequencer or in the starting library material.
   2. Clean the data with Trimmomatic. Trimmomatic performs trimming for the illumina specific sequences, and uses a sliding window approach to trim. It travels along the tread and cuts where quality falls below a certain specified threshold. It will cut the reads to a specific length and works with FastQC
+
     + cleaned reads come out in `.fastq.gz`. Don't open this file on the computer! This is the file we can use to visualize the FastQC
   3. After this you'll visualize again with FastQC
   4. Then calculate the numbers of cleaned, high quality reads that go into mapping
   5. Align these cleaned reads from each sample to the reference assembly to generate sequence alignment file using bwa. Files go in as .fastqc and out as .sam.
+
     +alignment post processing: we use samtools, sambamba whcih converts alignment into binary form (.bam)
   6. Remove PCR duplicates and calculate alignment statistics (% reads mapped successfully, mapping quality scores, and average depth of coverage per individual)
 
@@ -323,7 +325,7 @@ Below is my code that I used to process all the files belonging to XWS populatio
   #the lower case o means dont spit it to this directory put it in the folder i tell you to be in. only need to give the portion of the path that is beyond where you are. Meaning for this, you should be working within the myresults folder when you carry this out
 
   done
-``````
+  ``````
 ### Cleaning the reads for each of these files using Trimmomatic program
 + this program is installed on the server
 + there's an example script in `/data/scripts` which I copied into myscripts folder and opened and edited using vim
@@ -376,7 +378,6 @@ Below is my code that I used to process all the files belonging to XWS populatio
   SLIDINGWINDOW: Perform a sliding window trimming, cutting once the average quality within the window falls below a threshold.
   MINLEN: Drop the read if it is below a specified length
   ```
-
 
 
 
@@ -553,7 +554,7 @@ done
  #to do it in a way that allows these variables to get passed into the script that's being run use the command source, then the name of the file
  #source ./mapping.sh
  source ./process_bam.sh
-```
+ ```
 
 
 
@@ -641,7 +642,7 @@ for file in ${output}/BWA/${mypop}*sorted.rmdup.bam
 		samtools depth ${file} | awk '{sum+=3} END {print sum/NR}'
 		#take a rolling sum of the number in the third column
 	done >> ${myrepo}/myresults/${mypop}.coverage.txt
-```		 
+```
 ## ANGSD- Analysis of Next Generation Sequence Data
 + we should not assume that what we are observing is the true geneotype, there is some degree of uncertainty with this.
 + read data are counts that produce a multinomial distribution of alleles at a site. With only a few reads, you can't determine the geneotype confidently
@@ -763,7 +764,6 @@ thetaStat do_stat ${output}/${mypop}_folded_allsites.thetas.idx
 
 
 
-
 ------
 <div id='id-section24'/>
 ### Entry 24: 2020-02-13, Thursday.
@@ -801,7 +801,6 @@ thetaStat do_stat ${output}/${mypop}_folded_allsites.thetas.idx
   + when you can't be confident about the derived allele frequnecy, consider the minor allele frequency rather than the derived
     + no minor alleles means that the major allele is fixed. This is an alternative to ancestral
   + The folded spectra wraps the SFS around such that high frequency "derived" alleles are put into small bins (low minor allele frequency)
-
 
 
 
@@ -939,14 +938,13 @@ done
   #the lower case o means dont spit it to this directory put it in the folder i tell you to be in. only need to give the portion of the path that is beyond where you are.
 
   done
-``````
+ ``````
 + comparing the cleaned vs uncleaned
   + GS drops
   + number of bases drop
   + Per seq GC content- you can see a strong signature of first 12 bases
     + this is cone after cutting
   + Per sequence GC content
-
 
 
 
@@ -1213,8 +1211,9 @@ dim(countsMatrix)
 
 # To write out
 write.table(countsMatrix, file = "RS_countsMatrix.txt", col.names = T, row.names = T, quote = F)
-
+```
 ------
+
 <div id='id-section39'/>
 ### Entry 39: 2020-03-05, Thursday.
 
@@ -1271,6 +1270,21 @@ write.table(countsMatrix, file = "RS_countsMatrix.txt", col.names = T, row.names
 ------
 <div id='id-section48'/>
 ### Entry 48: 2020-03-18, Wednesday.
+
+# [Transcriptomics Day 3](https://pespenilab.github.io/Ecological-Genomics/2020-03-17_RNA-seq_Day3.html)
+
+#### Troubleshooting and improving mapping rate
+  * two weeks ago we found a really low mapping rate of ~2%
+  * this may have been the case because the reference used only contains information for the coding region, therefore many reads were not mapping because 3'RNAseq data has much of the sequencing effort in the 3' UTR.
+  * mapped to a new refernce that included these untranslated regions and improved mapping rate! Now it falls between 40-70% with the mean being 52% of reads mapped to the reference.
+  * create counts matrix
+
+
+
+download the zipped counts matrix and the sample ID table
+original heat map includes 20 genes, but if you include all genes that are significant you see a seperate module of downregulated genes.
+The triangular
+differential expression on the y axis as a function of change in the mean
 
 
 
@@ -1493,3 +1507,5 @@ write.table(countsMatrix, file = "RS_countsMatrix.txt", col.names = T, row.names
 ------
 <div id='id-section85'/>
 ### Entry 85: 2020-05-08, Friday.
+
+```
