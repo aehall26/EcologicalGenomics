@@ -1482,6 +1482,14 @@ differential expression on the y axis as a function of change in the mean.
 
 * A. tonsa is a great system to ask these questions for a number of reasons. First, their generation time is only ~10-20 days and they’re tiny! Only 1-2 mm. This means we can easily execute multi-generational studies with thousands of individuals. Second, because they can tolerate such variable environments, they should have lots of plasticity to respond to environmental fluctuations. Finally, their large population sizes mean that genetic diversity should be high, giving them high adaptive potential. This means that if any species can respond to rapid environmental change, it is likely *A. tonsa*.
 
+### Collection:
+* copepods collected from the wild, common gardened for three generations, then split into four treatments with four replicates each about 3,000-5,000 individiuals per replicate.
+  #### Treatment
+    * Controls: ambiant temp, ambient CO2
+    * Ambient Temp, High CO2
+    * High Temp, Ambient CO2
+    * High Temp, High CO2
+
 
 
 
