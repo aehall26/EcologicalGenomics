@@ -1546,6 +1546,191 @@ bismark --bowtie2 --multicore 1 \
 <div id='id-section58'/>
 ### Entry 58: 2020-04-01, Wednesday.
 
+# [Epigenetics Day 2](https://pespenilab.github.io/Ecological-Genomics/2020-04-01_Epigenetics_Day_2%20(1).html)
+#### We got low mapping rates:
+* this is something about the DNA that went in
+
+#### Methylation extraction Files
+* Use bismark methylation extractor to outout cytosine calls in a CPG format
+  * looks at overall methylation rates, rather than top or bottom reads
+  * can look at HTML reports which are posted on the turotia
+  * 60% mapping for each individual
+  * CPG methylation rates are pretty consistent with what we expect to see in animals
+  * We're most interested in the methylation bias plotMA
+   * is there bias in the rates of methylation across reads
+   * thin lines are calls at each site
+   * we would expect equal methylation rates across read
+    * is this what we see?
+    * we will skip methylation calls for the first two bases because it drops back to normal steady rates around base 3
+    * common to get funny bias either at the beginning or end of reads
+      * no one knows why!
+      * there are CPG throughout the read, so why would we see a concentration at the beginning
+      * some sort of library bias but no known mechanism
+      * if in doubt, trim it off
+
+#### Looking at the data files downloaded
+* use zcat to look at them locally
+* for the first 10 SNPs we have only non-methylated cytosines
+* the 4th column is meth percentage
+* 5th is number of methylated sites
+  * we can  filter out to show SNPs that are methylated
+* because it's only a single SNP it's the same start and stop position
+
+#### R code
+
+```
+library(methylKit)
+library(tidyverse)
+library(ggplot2)
+library(pheatmap)
+
+# first, we want to read in the raw methylation calls with methylkit
+
+# set directory with absolute path (why is this necessary? I have no idea, but gz files wont work with relative paths)
+dir <- "C:/Users/Alison's Laptop/Documents/UVM/EcologicalGenomics/EcologicalGenomics/EcoGenom"
+# read in the sample ids
+samples <- read.table("sample_id.txt", header=FALSE)
+# now point to coverage files
+files <- file.path(dir, samples$V1)
+all(file.exists(files)) #this means that the file path exiists and point to the correct location
+
+# convert to list
+file.list <- as.list(files)
+
+# get the names only for naming our samples
+nmlist <- as.list(gsub("_1_bismark_bt2_pe.bismark.cov.gz","",samples$V1))
+# use methRead to read in the coverage files
+# all the steps above get the data in the right format for methyl kit to read in
+myobj <- methRead(location= file.list,
+                  sample.id =   nmlist,
+                  assembly = "atonsa", # this is just a string. no actual database
+                  dbtype = "tabix", #methyl kit creates another data base to pull from
+                  context = "CpG",
+                  resolution = "base", #snp data for every base we're looking for
+                  mincov = 20, #filter for coverage. data are pooled- 30ind per sample. so we don't want bases with on a single or a couple reads. Require at least 20 reads per site to get accurate estimations. Could use 10 if the data werent pooled
+                  treatment =
+                    c(0,0,0,0,
+                      1,1,1,1,
+                      2,2,2,2,
+                      3,3,3,3,
+                      4,4,4,4), #vector that indicates the sample treatments that we have. expects numbers
+                  pipeline = "bismarkCoverage",
+                  dbdir = "~/Documents/UVM/EcologicalGenomics/EcologicalGenomics/EcoGenom/")
+
+
+######
+# visualize coverage and filter
+######
+
+# We can look at the coverage for individual samples with getCoverageStats()
+getCoverageStats(myobj[[1]], plot=TRUE)
+
+# and can plot all of our samples at once to compare. This shows a histogram of the CpG coverage. We expect (and observe) the histrogram that we see. Dont trust the ones that have really high coverage.
+
+# filter samples by depth with filterByCoverage()
+filtered.myobj <- filterByCoverage(myobj,
+                                   lo.count=20, lo.perc = NULL,
+                                   hi.count = NULL, hi.perc=97.5,
+                                   db.dir = "~/Documents/UVM/EcologicalGenomics/EcologicalGenomics/EcoGenom/") #exclude high coverage reads in the data and focus only on the bulk of the data. Safer to be cautious at the potential cost of losing real data, then to potentially bias your data.
+
+######
+# merge samples
+######
+
+#Note! This takes a while and we're skipping it so it's commente dout
+
+# use unite() to merge all the samples. We will require sites to be present in each sample or else will drop it
+
+# meth <- unite(filtered.myobj, mc.cor=3, suffix="united",db.dir="~/Documents/UVM/EcologicalGenomics/EcologicalGenomics/EcoGenom/")
+#load the previously generated database
+meth <- methylKit:::readMethylBaseDB(
+  dbpath = "/Users/Alison's Laptop/Documents/UVM/EcologicalGenomics/EcologicalGenomics/EcoGenom/methylBase_united.txt.bgz",
+  dbtype = "tabix",
+  sample.id =   unlist(nmlist),
+  assembly = "atonsa", # this is just a string. no actual database
+  context = "CpG",
+  resolution = "base",
+  treatment = c(0,0,0,0,
+                1,1,1,1,
+                2,2,2,2,
+                3,3,3,3,
+                4,4,4,4),
+  destrand = FALSE)
+# percMethylation(meth) calculates the percent methylation for each site and sample
+pm <- percMethylation(meth)
+#plot methylation historams
+ggplot(gather(as.data.frame(pm)), aes(value)) +
+  geom_histogram(bins = 10, color="black", fill="grey") +
+  facet_wrap(~key) #this shows primarily 100 and  and very low in between.
+
+#calculate and plot mean methylation
+sp.means <- colMeans(pm)
+# we have 15,000 sites across the genome that have good methylation data
+#plot mean methylation values
+p.df <- data.frame(sample=names(sp.means),
+                   group = substr(names(sp.means), 1,6),
+                   methylation = sp.means)
+ggplot(p.df, aes(x=group, y=methylation, color=group)) +
+  stat_summary(color="black") + geom_jitter(width=0.1, size=3)
+# this shows that mean and standard error are consistent between groups. Is this methylation rate that is higher for the AA group, is that real or is the library rate higher. This reflects the average at each sample. Don't want huge fluctuations because that probably is a technical problem rather than a biological cause.
+
+#sample clustering
+clusterSamples(meth, dist="correlation",method="ward.D",plot=TRUE)
+# this figure lays out the course relationships between our samples. We are not observing clustering between samples by treatments. Yellow and green are similar affects (data frmom physiology assays) and fall near each other. Messy.
+
+#skipping PCA for now
+
+#subset with reorganize()
+meth_sub <- reorganize(meth,
+                       sample.ids =c("AA_F00_1","AA_F00_2","AA_F00_3", "AA_F00_4",
+                                     "HH_F25_1","HH_F25_2","HH_F25_3","HH_F25_4"),
+                       treatment = c(0,0,0,0,1,1,1,1),
+                       save.db=FALSE)
+# now we have just 8 samples- pulling out the columns that we want.
+# you can play with these pairwise comparisons
+
+#calculate differential methylation between groups
+myDiff <- calculateDiffMeth(meth_sub,
+                            overdispersion = "MN",
+                            mc.cores = 1,
+                            suffix = "AA_HH",
+                            adjust = "qvalue",
+                            test="Chisq")
+#compare regression of twoto se whether treatment explains the difference
+# this provides a chart with the percent change in methylation for all 15,000 rows
+#parse down to what's significant
+myDiff <- getMethylDiff(myDiff, qvalue=0.05, difference = 10)
+
+#get data out of this object to see if theyre hypo or hyper methylatied
+# change in methylation between AA and HH sites
+hist(getData(myDiff)$meth.diff)
+# in general, they are hypo methylated
+# we have already filtered out everything that doesnt show a difference of at least 10. most sites show little to no change.
+
+pm <- percMethylation(meth_sub)
+# make a dataframe with snp id's, methylation, etc.
+sig.in <- as.numeric(row.names(myDiff))
+pm.sig <- pm[sig.in,]
+
+
+
+# add snp, chr, start, stop
+
+
+din <- getData(myDiff)[,1:3]
+df.out <- cbind(paste(getData(myDiff)$chr, getData(myDiff)$start, sep=":"), din, pm.sig)
+colnames(df.out) <- c("snp", colnames(din), colnames(df.out[5:ncol(df.out)]))
+df.out <- (cbind(df.out,getData(myDiff)[,5:7]))
+
+
+#heat map
+my_heatmap <- pheatmap(pm.sig, show_rownames = FALSE)
+
+#and we can normalize to think of changes relative to the AA treatment, which Reid views as the control. Just for visualization purposes
+ctrmean <- rowMeans(pm.sig[,1:4])
+h.norm <- (pm.sig-ctrmean)
+my_heatmap <- pheatmap(h.norm, show_rownames = FALSE)
+```
 
 
 ------
