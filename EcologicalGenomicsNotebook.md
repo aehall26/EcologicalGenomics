@@ -1696,7 +1696,7 @@ myDiff <- calculateDiffMeth(meth_sub,
                             suffix = "AA_HH",
                             adjust = "qvalue",
                             test="Chisq")
-#compare regression of twoto se whether treatment explains the difference
+#compare regression of two to see whether treatment explains the difference
 # this provides a chart with the percent change in methylation for all 15,000 rows
 #parse down to what's significant
 myDiff <- getMethylDiff(myDiff, qvalue=0.05, difference = 10)
@@ -1737,7 +1737,27 @@ my_heatmap <- pheatmap(h.norm, show_rownames = FALSE)
 <div id='id-section59'/>
 ### Entry 59: 2020-04-02, Thursday.
 
-
+## Other notes about Epigenetics
+* epigenetics- how does a single genotype give rise to different phenotypes based on the environment. Thinking about changes in gene expression that aren't due to the DNA sequence in and of itself
+*heritability of these markers is more rare than we might consider
+* Genetic variation influences epigenetic variation
+* epigenetic factors can influence transposable elements and this can influence gene expression which influences phenotype. Dictates how organisms may adapt to environmental change
+* #### Mechanisms of epigenetics
+  * ##### DNA methylation
+    *  easily quantifiable and important in regulating the gene expression
+    * histone modification
+    * and in regulating epigenetic process
+    * at a cytosine methylation is yielding a 5 methyl cytosoine.
+    * Methylation can lead to mutation in the genome because a cytosine can be deaminated into a Uracil which shouldn't be in DNA and so is corrected back into a cytosine
+    * but, if we deaminate a methylated cytosine, we get a Thymine which isn't corrected into a cytosines
+    * SO, if we see a deficit of Cs in the genome because methylation allows these changes to stay.
+    * These uncorrected mistakes imply that there is a benefit to methylation because mistakes come at a cost.
+    * High methylation usually yields lower gene expression- because it can inhibit binding of transcription factors. Or because it can recruit methyl binding proteins which inhibit TFs from binding.
+    *Gene body methylation has the opposite effect of methylation in promoter regions.
+    * Genes with low methylation are more responsive to environmental change because their expression isn't stabilized so it enables transcription to be ramped up more quickly in response to environmental changed
+    * ##### Bisulfite sequencing- the main way to quantify methylation patterns in the genome
+      * input fragmented genomic DNA samples add sodium bisulfite which forces creation of a uracil from a cytosine
+      * BUT when we have methylation present, this doesn't convert cytosine to uracil so if we do a PCR any C that isn't methylated will become a U and those Us will become Ts after PCR amplification 
 
 ------
 <div id='id-section60'/>
